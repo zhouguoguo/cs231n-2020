@@ -77,7 +77,9 @@ class KNearestNeighbor(object):
                 #####################################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-                pass
+                #pass
+                distance = np.sqrt(np.sum(np.square(X[i] - self.X_train[j])))
+                dists[i][j] = distance
 
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -154,7 +156,13 @@ class KNearestNeighbor(object):
         for i in range(num_test):
             # A list of length k storing the labels of the k nearest neighbors to
             # the ith test point.
+            disvec = dists[i]
+            idx = np.argsort(disvec)
+            votes = self.y_train[idx[:k]]
+            
             closest_y = []
+            closest_y = np.argmax(np.bincount(votes)) 
+            y_pred[i] = closest_y
             #########################################################################
             # TODO:                                                                 #
             # Use the distance matrix to find the k nearest neighbors of the ith    #
