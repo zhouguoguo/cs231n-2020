@@ -134,8 +134,22 @@ class KNearestNeighbor(object):
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        #pass
-        
+        #(a-b)*(a-b) = a*a + b*b -2ab
+        M1 = self.X_train.dot(self.X_train.T) #(num_train, num_train)
+        M2 = X.dot(X.T) #(num_test, num_test)
+        M = X.dot(self.X_train.T) #(num_test, num_train)
+
+        #print(M1.shape)
+        #print(M2.shape)
+        #print(M.shape)
+        #diagonal
+        diag1 = M1[np.diag_indices(num_train)] #(num_train,)
+        diag2 = M2[np.diag_indices(num_test)].reshape(num_test,1) #(num_test,)
+        #print(diag1.shape)
+        #print(diag2.shape)
+        #broadcasting
+        dists = np.sqrt(diag1 + diag2 - 2 * M)
+        #print(dists.shape)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
