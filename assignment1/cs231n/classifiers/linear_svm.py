@@ -28,6 +28,7 @@ def svm_loss_naive(W, X, y, reg):
     num_train = X.shape[0]
     loss = 0.0
     for i in range(num_train):
+        failed = 0
         scores = X[i].dot(W)
         correct_class_score = scores[y[i]]
         for j in range(num_classes):
@@ -36,6 +37,9 @@ def svm_loss_naive(W, X, y, reg):
             margin = scores[j] - correct_class_score + 1 # note delta = 1
             if margin > 0:
                 loss += margin
+                failed += 1
+                dW[:, j] += X[i]
+        dW[:, y[i]] -= failed * X[i]
 
     # Right now the loss is a sum over all training examples, but we want it
     # to be an average instead so we divide by num_train.
@@ -54,7 +58,9 @@ def svm_loss_naive(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    #pass
+    dW /= num_train
+    dW += reg * 2 * W
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     
@@ -78,7 +84,33 @@ def svm_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    #pass
+    num_classes = W.shape[1]
+    num_train = X.shape[0]
+    loss = 0.0
+
+    scores = X.dot(W)  # (N,D)*(D,C)->(N,C)
+    correct_class_score = scores[np.arange(num_train), y]
+    #print("scores.shape:")
+    #print(scores.shape)
+    #print("correct_class_score.shape:")
+    #print(correct_class_score.shape)
+
+    margins = scores.T - correct_class_score + 1
+    margins = margins.T
+    margins[np.arange(num_train), y] = 0
+    #print("margins.shape:")
+    #print(margins.shape)
+
+    margins = np.maximum(margins, 0)
+ 
+    loss = np.sum(margins) / num_train
+    #loss = (np.sum(margins) - num_train) / num_train
+    loss += reg * np.sum(W * W)
+
+    #print(loss)
+
+
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -93,7 +125,18 @@ def svm_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    #pass
+    
+    margins[margins>0]=1
+    failed = np.sum(margins, axis = 1)
+    #print("failed.shape:")
+    #print(failed.shape)
+
+    margins[np.arange(num_train), y] = -1 * failed
+
+    dW = np.dot(X.T, margins) / num_train + reg * 2 * W
+    #print("dW.shape:")
+    #print(dW.shape)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
